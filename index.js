@@ -22,7 +22,16 @@ cleanButton.addEventListener("click",clean);
 
 function addToDo(e) {
     e.preventDefault();
-    toDoList.unshift({"no": toDoList.length+1, "value": inputValue, "pri": priInputValue} );
+    if(typeof inputValue == undefined || inputValue == ""){
+        inputValue = "None";
+    }
+    if(isNaN(priInputValue) || Number(priInputValue) < 1 || Number(priInputValue) > 4){
+        priInputValue = "0";
+    }
+
+    toDoList.unshift({"no": toDoList.length+1, "value": inputValue, "pri": parseInt(priInputValue)} );
+    inputValue = "";
+    priInputValue = "";
     toDoInput.value = "";
     toDoPriInput.value = "";
     toDoListSort();
@@ -52,7 +61,7 @@ function toDoListSort() {
     let temp;
     for(let i = 0; i < toDoList.length; i++){
        for (let j = i+1; j < toDoList.length; j++){
-          if(Number(toDoList[i]["pri"]) < Number(toDoList[j]["pri"])){
+          if(toDoList[i]["pri"] < toDoList[j]["pri"]){
             temp = toDoList[i];
             toDoList[i] = toDoList[j];
             toDoList[j] = temp;
@@ -69,7 +78,7 @@ function display() {
     else{
         let tdlHtml = ""; 
         toDoList.forEach(element => {
-        switch (Number(element.pri)) {
+        switch (element.pri) {
             case 4:
                 tdlHtml += `
                   <div class="card bgc-fpri">
