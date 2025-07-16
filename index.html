@@ -8,9 +8,9 @@
 </head>
 <body>
     <nav class="navbar">
-        <div id="logo">
-            TDL
-        </div>
+        <a href="index.html" id="logo">
+            <span style="color: red;">T</span><span style="color: rgb(226, 98, 6);">o</span><span style="color: rgba(255, 255, 72, 0.896);">Do</span><span style="color: rgba(16, 99, 243, 0.896);">List</span>
+        </a>
         <div class="input">
             <input id="todo-input" type="text" placeholder="Bir şeyler yazın.">
             <input  id="todo-pri-input" type="text" placeholder="1-4">
@@ -20,7 +20,13 @@
     </nav>
     
     <div class="flex-container" id="to-do-list">
-        <h1>Liste boş!</h1>
+        <div class="blank-container-p">
+            Listenizde öğe bulunmuyor.
+        </div>
+        <div class="blank-container-g">
+           <span style="font-weight: bold;">Bilgilendirme</span> Soldaki kısma kaydetmek istediğiniz "yapılacak işi" sağdaki kısma ise 1 ile 4 arası olacak şekilde öncelik numarası giriniz.
+            Öncelik numarası girmeden de işlerinizi kaydedebilirsiniz.  
+        </div> 
     </div>
     <script src="index.js"></script>  
 </body>
