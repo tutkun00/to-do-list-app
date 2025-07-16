@@ -1,28 +1,33 @@
+//Storage Class'ı (Local Storage'a verileri kaydetmek için)
 class Storage {
-    static setStorage(list){
-
+    static setStorage(tdlist){
+       let storage = localStorage.setItem("todo", JSON.stringify(tdlist));
+       return storage;
     }
     static getStorage(){
-
+       let storage = localStorage.getItem("todo") === null ? [] : JSON.parse(localStorage.getItem("todo"));
+       return storage;
     }
 }
 
+
+//To-do List Class'ı 
 class ToDoList {
 
-    #toDoList;
+    toDoList;
 
-    constructor() {
-      this.#toDoList = [];
+    constructor(tdl) {
+      this.toDoList = tdl;
     }
 
     toDoListSort() {
     let temp;
-    for(let i = 0; i < this.#toDoList.length; i++){
-       for (let j = i+1; j < this.#toDoList.length; j++){
-          if(this.#toDoList[i]["pri"] <  this.#toDoList[j]["pri"]){
-            temp = this.#toDoList[i];
-            this.#toDoList[i] = this.#toDoList[j];
-            this.#toDoList[j] = temp;
+    for(let i = 0; i < this.toDoList.length; i++){
+       for (let j = i+1; j < this.toDoList.length; j++){
+          if(this.toDoList[i]["pri"] > this.toDoList[j]["pri"]){
+            temp = this.toDoList[i];
+            this.toDoList[i] = this.toDoList[j];
+            this.toDoList[j] = temp;
           }
        }
     }
@@ -32,40 +37,43 @@ class ToDoList {
     addToDo(e, inputValue, priInputValue) {
     e.preventDefault();
     if(typeof inputValue == undefined || inputValue == ""){
-        UI.giveAlert("Lütfen yapılacak işi bölümünü boş bırakmayınız.");
+        UI.giveAlert("Lütfen yapılacak iş bölümünü boş bırakmayınız.");
         return;
     }
     if(isNaN(priInputValue) || Number(priInputValue) < 1 || Number(priInputValue) > 4){
-        priInputValue = "0";
+        priInputValue = "10";
     }
-    this.#toDoList.unshift({"no": this.#toDoList.length+1, "value": inputValue, "pri": parseInt(priInputValue)} );
-    console.log(this.#toDoList);
+    this.toDoList.unshift({"no": this.toDoList.length+1, "value": inputValue, "pri": parseInt(priInputValue)} );
+    console.log(this.toDoList);
     this.toDoListSort();
-    UI.display(this.#toDoList);
+    UI.display(this.toDoList);
+    Storage.setStorage(this.toDoList);
 }
 
 
     deleteToDo(no) {
-    for(let index in this.#toDoList){
-        if(this.#toDoList[index]["no"] == no){
-            this.#toDoList.splice(index,1);
+    for(let index in this.toDoList){
+        if(this.toDoList[index]["no"] == no){
+            this.toDoList.splice(index,1);
         }
     }
-    UI.display(this.#toDoList);
+    UI.display(this.toDoList);
+    Storage.setStorage(this.toDoList);
 } 
 
    
     clean(e) {
     e.preventDefault();
-    while(this.#toDoList.length > 0){
-      this.#toDoList.pop();
+    while(this.toDoList.length > 0){
+      this.toDoList.pop();
     }
-    UI.display(this.#toDoList);
+    UI.display(this.toDoList);
+    Storage.setStorage(this.toDoList);
 }
     
 }
 
-
+//To-do ları gösteren ve eksik bilgi girildiğinde alert verilmesi için UI Class'ı
 class UI {
     static display(tdlist){
        if(tdlist.length == 0){
@@ -76,7 +84,7 @@ class UI {
         let tdlHtml = ""; 
         tdlist.forEach(element => {
         switch (element.pri) {
-            case 4:
+            case 1:
                 tdlHtml += `
                   <div class="card bgc-fpri">
                   <span>${element.value}</span>  <span>Öncelik Seviyesi: ${element.pri}</span>
@@ -84,7 +92,7 @@ class UI {
                 `
                 break;
             
-            case 3:
+            case 2:
                 tdlHtml += `
                   <div class="card bgc-spri">
                    <span>${element.value}</span>  <span>Öncelik Seviyesi: ${element.pri}</span>
@@ -92,7 +100,7 @@ class UI {
                 `
                 break;
 
-            case 2:
+            case 3:
                 tdlHtml += `
                   <div class="card bgc-tpri">
                    <span>${element.value}</span>  <span>Öncelik Seviyesi: ${element.pri}</span>
@@ -100,7 +108,7 @@ class UI {
                 `
                 break; 
 
-            case 1:
+            case 4:
                 tdlHtml += `
                   <div class="card bgc-lpri">
                    <span>${element.value}</span>  <span>Öncelik Seviyesi: ${element.pri}</span>
@@ -128,24 +136,27 @@ class UI {
     }
 }
 
+//To-do nesnesi oluşturma
+const toDoList = new ToDoList(Storage.getStorage());
+//Local Storage'daki çekilen verileri sayfa açıldığında ekranda gösterme
+window.addEventListener("DOMContentLoaded", function(){
+   UI.display(toDoList.toDoList);
+});
+//Input elementlerini seçme
 let inputValue;
 let toDoInput = document.getElementById("todo-input");
-toDoInput.addEventListener("change", function (event){
-   inputValue = event.target.value;
-});
 
 let priInputValue;
 let toDoPriInput = document.getElementById("todo-pri-input");
-toDoPriInput.addEventListener("change", function (event){
-    priInputValue = event.target.value;
-});
+
 
 let toDoDOM = document.getElementById("to-do-list");
 
-const toDoList = new ToDoList();
 
 let addButton = document.getElementById("add-button");
 addButton.addEventListener("click", function(e){
+    inputValue = toDoInput.value;
+    priInputValue = toDoPriInput.value;
     toDoList.addToDo(e,inputValue,priInputValue);
     inputValue = "";
     priInputValue = "";
@@ -158,7 +169,8 @@ cleanButton.addEventListener("click", function(e){
     toDoList.clean(e);
 });
 
-
+//---------------------------------------------------------------------------------------
+//Yukarıdaki kısım bu kısmın daha modüler hali ve Local Storage'da veri alışverişi eklenmiş kısmıdır.
 
 // let toDoList = [];
 
